@@ -215,5 +215,3 @@ if __name__ == "__main__":
     
     print("Starting tree traversal from node:", start.getNodeName())
     print(tree_select(start))
-
-    
