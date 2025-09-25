@@ -10,7 +10,9 @@
             "type": "debugpy",
             "request": "launch",
             "program": "${file}",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "env": {"MDS_HOST": "alcdata-archives"},
+            "args": ["cmod", "1090909010"]
         }
     ]
 }
