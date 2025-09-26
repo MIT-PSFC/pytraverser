@@ -1,20 +1,19 @@
 #!/usr/bin/env python
-#from mdsthin import MDSplus
-import MDSplus
-from textual.app import App, ComposeResult
-from textual.containers import Container
-from textual.widgets import Tree, Static, Button
-from textual.widgets.tree import TreeNode
-from textual.widget import Widget
-from textual.reactive import reactive
+import os
+import argparse
+from mdsthin import MDSplus
+#import MDSplus
 from rich.table import Table
-from textual.containers import Vertical
-from textual.screen import ModalScreen
 from textual import events
 from textual import on
+from textual.app import App, ComposeResult
+from textual.containers import Container, Vertical
 from textual.events import Key
-
-import argparse
+from textual.reactive import reactive
+from textual.screen import ModalScreen
+from textual.widget import Widget
+from textual.widgets import Tree, Static, Button
+from textual.widgets.tree import TreeNode
 
 def _is_expanded(node) -> bool:
     """Best-effort check across Textual versions."""
@@ -119,12 +118,13 @@ class MDSplusTreeApp(App):
     class HeaderBar(Static):
         def on_mount(self):
             self.update(
-                "[b][click][/b]/[b]⏎[/b] expand + select + decompile   "
-                "[b]⇧⏎[/b] expand + select + show data   "
-                "[b]←[/b] collapse parent   "
-                "[b]→[/b] expand   "
-                "[b]↓[/b] move down + expand   "
-                "[b]↑[/b] move up + expand"
+                "[b]click[/b]/[b]⏎[/b] Expand/Collapse + select   "
+                "[b]⇥[/b] Decompile  "
+                "[b]⇧⇥[/b] Show Data  " 
+                "[b]←[/b] Collapse Parent   "
+                "[b]→[/b] Expand   "
+                "[b]↓[/b] Move Down + expand   "
+                "[b]↑[/b] move Up"
             )
 
     def compose(self) -> ComposeResult:
@@ -138,7 +138,6 @@ class MDSplusTreeApp(App):
         """Connect to the MDSplus tree and populate the root node."""
         self.styles.dock = "bottom"
         self.styles.height = 3
-#        self.styles.background = "transparent"
 
         try:
             self.mds_tree = MDSplus.Tree(self.tree_name, self.shot_number)
@@ -204,21 +203,6 @@ class MDSplusTreeApp(App):
             
             self.run_worker(load_and_populate, exclusive=True, thread=True)
 
-    # Tree selection handler: push the selected node's data into the footer
-    def on_tree_node_selected(self, event: Tree.NodeSelected) -> None:
-        tree = self.query_one(Tree)
-        selected_node = tree.cursor_node
-        # data = selected_node.data
-        # text = None
-        # try:
-        #     self.selected = data
-        #     text = data.record.decompile()
-        # except Exception as e:
-        #     pass
-        # if text is not None:
-        #     self.push_screen(ReprPopup(text))
-
-
     def on_tree_node_highlighted(self, event: Tree.NodeHighlighted) -> None:
         footer = self.query_one(NodeFooter)
         data = event.node.data
@@ -233,18 +217,18 @@ class MDSplusTreeApp(App):
             )
     @on(Key)  # app-wide
     def handle_tab(self, event: Key) -> None:
-        if event.key in ("tab","enter") and self.focused and self.focused.id != "close":
+        if event.key in ("tab","shift+tab") and self.focused and self.focused.id != "close":
             tree = self.query_one(Tree)
             selected_node = tree.cursor_node
             data = selected_node.data
             text = None
-            if (event.key == "tab") and (self.focused is not None):
+            if (event.key == "shift+tab") and (self.focused is not None):
                 try:
                     self.selected = data
                     text = str(data.data())
                 except Exception as e:
                     return None
-            elif event.key == "enter":
+            elif event.key == "tab":
                 try:
                     self.selected = data
                     text = data.record.decompile()
@@ -368,8 +352,7 @@ def parse_args():
 
 if __name__ == "__main__":
     args = parse_args()
-
-    # Example usage: Replace 'your_tree_name' and '1' with actual values.
+    os.environ.setdefault("MDS_HOST", "alcdata.psfc.mit.edu")
     app = MDSplusTreeApp(args.tree, args.shot) 
     app.run()
     print("Selected node:", app.selected)
