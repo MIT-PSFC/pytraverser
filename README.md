@@ -1,7 +1,11 @@
 # PyTraverser
 
-PyTraverser is a Python library for traversing and manipulating data structures such as trees and graphs. It provides flexible APIs for walking, searching, and transforming nested data, making it easier to implement algorithms and data processing workflows.
+PyTraverser is a Python library for text based traversing of MDSplus trees. It provides both a command line callable interfaces.
 
+This package uses mdsthin to access MDSplus information.  Define MDS_HOST environment to be the server to use.  For example:
+```
+export MDS_HOST=alcdata
+```
 ## Features
 
 - Traverse trees and graphs with customizable strategies
@@ -25,13 +29,23 @@ pip install pytraverser
 
 ## Usage Shell
 ```
-$ export MDS_HOST=alcdata
-$ pytraverser tree-name [shot-numer] [-d --dark | -l --light]
-```gh
-## Usage Python
+usage: pytraverser [-h] [-d | -l] tree [shot]
+
+Tree, optional shot, dark flag
+
+positional arguments:
+  tree         Tree string
+  shot         Optional shot number (default -1)
+
+options:
+  -h, --help   show this help message and exit
+  -d, --dark   Enable dark mode
+  -l, --light  Enable light mode
+```
+
+## Python Usage
 
 ```
-$ export MDS_HOST=alcdata
 $ python
 Python 3.10.12 (main, Aug 15 2025, 14:32:43) [GCC 11.4.0] on linux
 Type "help", "copyright", "credits" or "license" for more information.
