@@ -349,10 +349,12 @@ def parse_args():
 
     return parser.parse_args()
 
-
-if __name__ == "__main__":
+def main():
     args = parse_args()
     os.environ.setdefault("MDS_HOST", "alcdata.psfc.mit.edu")
-    app = MDSplusTreeApp(args.tree, args.shot) 
+    app = MDSplusTreeApp(args.tree, args.shot)
     app.run()
     print("Selected node:", app.selected)
+
+if __name__ == "__main__":
+    main()

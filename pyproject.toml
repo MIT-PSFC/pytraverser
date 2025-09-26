@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pytraverser"
-version = "0.1.0"
-description = "A terminal file tree and traverser."
+version = "0.1.2"
+description = "A terminal file tree traverser."
 readme = "README.md"
 requires-python = ">=3.8"
 license = { file = "LICENSE" }
@@ -30,6 +30,13 @@ authors = [
   { name = "Josh Stillerman", email = "jas@mit.edu" }
 ]
 
+[project.scripts]
+pytraverser = "pytraverser:main"
+
 [project.urls]
 Homepage = "https://github.com/you/pytraverser"
 Repository = "https://github.com/you/pytraverser"
+
+# Tell setuptools to include a single-file module
+[tool.setuptools]
+py-modules = ["pytraverser"]
