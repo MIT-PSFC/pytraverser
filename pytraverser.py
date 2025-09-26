@@ -204,6 +204,10 @@ class MDSplusTreeApp(App):
             self.run_worker(load_and_populate, exclusive=True, thread=True)
 
     def on_tree_node_highlighted(self, event: Tree.NodeHighlighted) -> None:
+        tree = self.query_one(Tree)
+        selected_node = tree.cursor_node
+        data = selected_node.data
+        self.selected = data
         footer = self.query_one(NodeFooter)
         data = event.node.data
         if data is not None:
@@ -348,6 +352,12 @@ def parse_args():
     group.add_argument('-l', '--light', action='store_true', help='Enable light mode')
 
     return parser.parse_args()
+
+def traverse(tree: str, shot: int = -1) -> MDSplus.TreeNode | None:
+    os.environ.setdefault("MDS_HOST", "alcdata.psfc.mit.edu")
+    app = MDSplusTreeApp(tree, shot)
+    app.run()
+    return app.selected
 
 def main():
     args = parse_args()
