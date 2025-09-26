@@ -1,4 +1,27 @@
 #!/usr/bin/env python
+"""
+pytraverser.py
+================
+A Textual-based interactive browser for MDSplus trees.
+This module provides a terminal UI for exploring and selecting nodes from an MDSplus tree,
+displaying node metadata, and viewing node data or decompiled records. It uses the Textual
+framework for UI and the MDSplus Python API for tree access.
+Classes:
+    MDSplusTreeApp: Main Textual application for browsing MDSplus trees.
+    NodeFooter: Widget displaying metadata for the selected node.
+    ReprPopup: Modal popup for displaying node data or decompiled record.
+    HeaderBar: Static widget showing key bindings and usage hints.
+Functions:
+    _is_expanded(node): Checks if a TreeNode is expanded, compatible across Textual versions.
+    walk_visible(node, include_self=True): Yields visible TreeNode objects in pre-order.
+    parse_args(): Parses command-line arguments for tree name, shot number, and theme.
+    traverse(tree, shot=-1): Runs the interactive browser and returns the selected node.
+    main(): Entry point for command-line usage.
+Usage:
+    python pytraverser.py <tree> [shot] [-d | --dark | -l | --light]
+Environment:
+    MDS_HOST: Defaults to "alcdata.psfc.mit.edu" if not set.
+"""
 import os
 import argparse
 from mdsthin import MDSplus
@@ -354,6 +377,16 @@ def parse_args():
     return parser.parse_args()
 
 def traverse(tree: str, shot: int = -1) -> MDSplus.TreeNode | None:
+    """
+    Traverse an MDSplus tree and select a node interactively.
+
+    Args:
+        tree (str): The name of the MDSplus tree to traverse.
+        shot (int, optional): The shot number to open. Defaults to -1.
+
+    Returns:
+        MDSplus.TreeNode | None: The selected tree node, or None if no selection was made.
+    """
     os.environ.setdefault("MDS_HOST", "alcdata.psfc.mit.edu")
     app = MDSplusTreeApp(tree, shot)
     app.run()
