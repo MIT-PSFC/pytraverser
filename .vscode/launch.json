@@ -13,6 +13,18 @@
             "console": "integratedTerminal",
             "env": {"MDS_HOST": "alcdata-archives"},
             "args": ["cmod", "1090909010"]
+        },
+        {
+            "name": "Python Debugger: Command line",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "pytraverser",
+            "args": [
+                "cmod",
+                "-1",
+                "--light"
+            ],            "console": "integratedTerminal",
+            "env": {"MDS_HOST": "alcdata-archives"},
         }
     ]
 }

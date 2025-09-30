@@ -34,6 +34,7 @@ from textual.containers import Container, Vertical
 from textual.events import Key
 from textual.reactive import reactive
 from textual.screen import ModalScreen
+from textual.timer import Timer
 from textual.widget import Widget
 from textual.widgets import Tree, Static, Button
 from textual.widgets.tree import TreeNode
@@ -111,6 +112,7 @@ class MDSplusTreeApp(App):
 
     BINDINGS = [       
         ("q", "quit", "Quit"),
+        ("d", "toggle_dark", "Toggle dark mode")
     ]
 
     CSS = """
@@ -131,12 +133,13 @@ class MDSplusTreeApp(App):
     }
 
     """
-    def __init__(self, tree_name: str, shot_number: int, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, tree_name: str, shot_number: int, *args, dark: bool = False, **kwargs):
         self.tree_name = tree_name
         self.shot_number = shot_number
         self.mds_tree = None
         self.selected = None
+        self.dark = dark
+        super().__init__(**kwargs)   
 
     class HeaderBar(Static):
         def on_mount(self):
@@ -157,6 +160,9 @@ class MDSplusTreeApp(App):
             yield Tree(self.tree_name, id="tree_view")
         yield NodeFooter(id="footer")
 
+    async def on_ready(self) -> None:
+        self.theme = "textual-dark" if self.dark else "textual-light"
+
     def on_mount(self) -> None:
         """Connect to the MDSplus tree and populate the root node."""
         self.styles.dock = "bottom"
@@ -175,7 +181,7 @@ class MDSplusTreeApp(App):
             # Prepare the initial children of the root node for lazy loading.
             self.prepare_mds_node(textual_root)
             textual_root.expand()
-
+                    
         except Exception as e:
             self.log.error(f"Failed to open MDSplus tree: {e}")
             self.query_one(Tree).root.set_label(f"ERROR: Could not open tree '{self.tree_name}'")
@@ -242,6 +248,12 @@ class MDSplusTreeApp(App):
                 length = "[red] 0" if data.length == 0 else str(data.length),            
                 tags=', '.join(str(tag) for tag in data.tags)
             )
+    def action_toggle_dark(self) -> None:
+        """An action to toggle dark mode."""
+        self.theme = (
+            "textual-dark" if self.theme == "textual-light" else "textual-light"
+        )
+
     @on(Key)  # app-wide
     def handle_tab(self, event: Key) -> None:
         if event.key in ("tab","shift+tab") and self.focused and self.focused.id != "close":
@@ -272,19 +284,6 @@ class MDSplusTreeApp(App):
         tree = self.query_one(Tree)
         if tree.cursor_node:
             tree.cursor_node.expand()
-
-    # def do_enter(self) -> None:
-    #     tree = self.query_one(Tree)
-    #     selected_node = tree.cursor_node
-    #     data = selected_node.data
-    #     text = None
-    #     try:
-    #         self.selected = data
-    #         text = data.record.decompile()
-    #     except Exception as e:
-    #         pass
-    #     if text is not None:
-    #         self.push_screen(ReprPopup(text))
         
     def key_left(self) -> None:
         """If current node is expanded, collapse it; else collapse parent and center it."""
@@ -371,12 +370,32 @@ def parse_args():
     parser.add_argument("shot", type=int, nargs="?", default=-1, help="Optional shot number (default -1)")
 
     group = parser.add_mutually_exclusive_group()
-    group.add_argument('-d', '--dark', action='store_true', help='Enable dark mode')
-    group.add_argument('-l', '--light', action='store_true', help='Enable light mode')
+    group.add_argument(
+        "-d", "--dark",
+        dest="dark",
+        action="store_true",
+        help="Enable dark mode"
+    )
+    group.add_argument(
+        "-l", "--light",
+        dest="dark",
+        action="store_false",
+        help="Enable light mode"
+    )
 
+    # Pull the env value if present, else fall back to 'alcdata'
+    default_host = os.environ.get("MDS_HOST", "alcdata")
+    parser.add_argument(
+        '-m', '--mds_host', type=str,
+        default=default_host,
+        help="MDS server host (default from $MDS_HOST or 'alcdata' if unset)",
+    )
+    
+    parser.set_defaults(dark=True)
+    
     return parser.parse_args()
 
-def traverse(tree: str, shot: int = -1) -> MDSplus.TreeNode | None:
+def traverse(tree: str, shot: int = -1, host: str = "alcdata.psfc.mit.edu", dark: bool = True) -> MDSplus.TreeNode | None:
     """
     Traverse an MDSplus tree and select a node interactively.
 
@@ -387,15 +406,17 @@ def traverse(tree: str, shot: int = -1) -> MDSplus.TreeNode | None:
     Returns:
         MDSplus.TreeNode | None: The selected tree node, or None if no selection was made.
     """
-    os.environ.setdefault("MDS_HOST", "alcdata.psfc.mit.edu")
-    app = MDSplusTreeApp(tree, shot)
+    os.environ["MDS_HOST"] = host
+    app = MDSplusTreeApp(tree, shot, dark=dark)
+#    app.theme = "textual-dark" if app.dark else "textual-light"
     app.run()
     return app.selected
 
 def main():
     args = parse_args()
-    os.environ.setdefault("MDS_HOST", "alcdata.psfc.mit.edu")
-    app = MDSplusTreeApp(args.tree, args.shot)
+    os.environ["MDS_HOST"] = args.mds_host
+    
+    app = MDSplusTreeApp(args.tree, args.shot, dark = args.dark)
     app.run()
     print("Selected node:", app.selected)
 
