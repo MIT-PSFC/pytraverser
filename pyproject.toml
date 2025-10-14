@@ -10,7 +10,6 @@ readme = "README.md"
 requires-python = ">=3.8"
 license = { file = "LICENSE" }
 
-# List your dependencies inline or load them dynamically (see next step)
 dependencies = [
 "linkify-it-py>=2.0.3",
 "markdown-it-py>=4.0.0",
@@ -34,9 +33,8 @@ authors = [
 pytraverser = "pytraverser:main"
 
 [project.urls]
-Homepage = "https://github.com/you/pytraverser"
-Repository = "https://github.com/you/pytraverser"
+homepage = "https://github.com/MIT-PSFC/pytraverser"
+repository = "https://github.com/MIT-PSFC/pytraverser"
 
-# Tell setuptools to include a single-file module
 [tool.setuptools]
 py-modules = ["pytraverser"]
