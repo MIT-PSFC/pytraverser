@@ -7,13 +7,13 @@ name = "pytraverser"
 version = "0.1.6"
 description = "A terminal file tree traverser."
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.8.1,<4"
 license = { file = "LICENSE" }
 
 dependencies = [
   "mdsthin>=1.6.1",
   "numpy",
-  "rich",
+  "rich>=13.3.3",
   "textual>=6.1.0",
 ]
 
