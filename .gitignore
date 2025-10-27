@@ -1,3 +1,5 @@
 __pycache__
 dist
 pytraverser.egg-info
+.idea
+.venv
