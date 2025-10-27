@@ -13,7 +13,7 @@ license = { file = "LICENSE" }
 dependencies = [
   "mdsthin>=1.6.1",
   "numpy",
-  "rich",
+  "rich>=13.3.3",
   "textual>=6.1.0",
 ]
 
